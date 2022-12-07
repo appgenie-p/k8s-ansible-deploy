@@ -1,14 +1,15 @@
 Vagrant.configure("2") do |config|
+  config.vm.box_check_update = false
   config.vm.define "master" do |master|
     check_guest_additions = false
     master.vm.box = "ubuntu/jammy64"
-    master.vm.box_check_update = false
     master.vm.hostname = "master"
     master.ssh.insert_key = false
-    master.vm.network "public_network",
-      use_dhcp_assigned_default_route: true,
-      bridge: "en1: Wi-Fi (AirPort)",
-      ip: "192.168.1.188"
+    # master.vm.network "public_network",
+    master.vm.network "private_network",
+      # use_dhcp_assigned_default_route: true,
+      # bridge: "en1: Wi-Fi (AirPort)",
+      ip: "10.0.1.9"
     master.vm.provider "virtualbox" do |vb|
       vb.linked_clone = true
       vb.name = "master"
@@ -17,16 +18,19 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  (1..2).each do |i|
+  # (1..2).each do |i|
+  (10..11).each do |i|
     config.vm.define "node-#{i}" do |node|
       check_guest_additions = false
       node.vm.box = "ubuntu/jammy64"
       node.vm.box_check_update = false
       node.vm.hostname = "node-#{i}"
       node.ssh.insert_key = false
-      node.vm.network "public_network",
-        use_dhcp_assigned_default_route: true,
-        bridge: "en1: Wi-Fi (AirPort)"
+      # node.vm.network "public_network",
+      node.vm.network "private_network",
+        # use_dhcp_assigned_default_route: true,
+        # bridge: "en1: Wi-Fi (AirPort)"
+        ip: "10.0.1.#{i}"
       node.vm.provider "virtualbox" do |vb|
         vb.linked_clone = true
         vb.name = "node-#{i}"
