@@ -1,6 +1,0 @@
-[vms]
-192.168.1.188 ansible_ssh_port=22  
-
-[vms:vars]
-ansible_ssh_user=vagrant
-ansible_ssh_private_key_file=~/.vagrant.d/insecure_private_key
