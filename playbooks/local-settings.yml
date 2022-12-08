@@ -4,12 +4,19 @@
     - name: Create aliases in .bashrc
       ansible.builtin.blockinfile:
         path: ~/.bashrc
-        block: |
+        block: &aliases |
           PS1="\u@\h \W: "
           alias ll='ls -laG'
           alias apb='ansible-playbook -v'
           alias mv='mv -i'
           alias rm='rm -i'
+
+    - name: Create aliases in .zshrc
+      ansible.builtin.blockinfile:
+        path: ~/.zshrc
+        block: *aliases
+        backup: true
+
     # - name: Chenge one line for test
     #   ansible.builtin.lineinfile:
     #     path: ~/.bashrc

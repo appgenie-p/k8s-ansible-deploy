@@ -1,0 +1,7 @@
+- name: Playbook for local software installation
+  hosts: localhost
+  tasks:
+    - name: Install jq
+      community.general.homebrew:
+        name: jq
+        state: present
