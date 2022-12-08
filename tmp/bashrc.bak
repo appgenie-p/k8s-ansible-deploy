@@ -1,0 +1,14 @@
+PS1="\u@\h \W: "
+alias ll='ls -lG'
+alias mv='mv -i'
+alias rm='rm -i'
+# alias kubectl="minikube kubectl --"
+
+
+# >>>> Vagrant command completion (start)
+. /opt/vagrant/embedded/gems/2.2.19/gems/vagrant-2.2.19/contrib/bash/completion.sh
+# <<<<  Vagrant command completion (end)
+# BEGIN ANSIBLE MANAGED BLOCK
+alias ll='ls -laG'
+alias apb='ansible-playbook -v'
+# END ANSIBLE MANAGED BLOCK

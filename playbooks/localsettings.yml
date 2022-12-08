@@ -1,0 +1,19 @@
+- name: Playbook for changing local mac settings
+  hosts: localhost
+  tasks:
+    - name: Create aliases in .bashrc
+      ansible.builtin.blockinfile:
+        path: ~/.bashrc
+        block: |
+          PS1="\u@\h \W: "
+          alias ll='ls -laG'
+          alias apb='ansible-playbook -v'
+          alias mv='mv -i'
+          alias rm='rm -i'
+    # - name: Chenge one line for test
+    #   ansible.builtin.lineinfile:
+    #     path: ~/.bashrc
+    #     backup: true
+    #     regexp: ^(alias ll)=
+    #     line: alias ll='ls -G' \g<1>BBB
+    #     backrefs: true
