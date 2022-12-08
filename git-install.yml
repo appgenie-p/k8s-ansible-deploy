@@ -2,14 +2,13 @@
 - name: My first play
   hosts: all
   tasks:
-    - name: name
-      git_config:
+    - name: Set git username
+      community.general.git_config:
         name: user.name
         value: Gennadiy Polezhaev
       become: true
-    - name: email
-      git_config:
+    - name: Set git username email
+      community.general.git_config:
         name: user.email
         value: gpolejaev@gmail.com
       become: true
-      
