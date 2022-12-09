@@ -8,6 +8,7 @@
           PS1="\u@\h \W: "
           alias ll='ls -laG'
           alias apb='ansible-playbook -v'
+          alias ail='ansible-inventory --list'
           alias mv='mv -i'
           alias rm='rm -i'
 
