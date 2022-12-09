@@ -1,10 +1,10 @@
 vms:
   children:
-    master-nodes:
+    master_nodes:
       hosts:
         master:
           ansible_host: 10.0.1.9
-    worker-nodes:
+    worker_nodes:
       hosts:
         node-10:
           ansible_host: 10.0.1.10

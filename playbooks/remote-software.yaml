@@ -1,0 +1,8 @@
+- name: Install and configure softaware on Vagrant machines
+  hosts: all
+  tasks:
+    - name: Install git
+      ansible.builtin.package:
+        name: git
+        state: present
+      become: true
