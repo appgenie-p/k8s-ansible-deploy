@@ -1,10 +1,13 @@
 Vagrant.configure("2") do |config|
   config.vm.box_check_update = false
+  # config.vm.provision :ansible do |ansible|
+  #   ansible.playbook = "playbooks/remote-software.yaml"
+  # end
   config.vm.define "master" do |master|
     check_guest_additions = false
     master.vm.box = "ubuntu/jammy64"
     master.vm.hostname = "master"
-    master.ssh.insert_key = false
+    master.ssh.insert_key = true
     # master.vm.network "public_network",
     master.vm.network "private_network",
       # use_dhcp_assigned_default_route: true,
@@ -25,7 +28,7 @@ Vagrant.configure("2") do |config|
       node.vm.box = "ubuntu/jammy64"
       node.vm.box_check_update = false
       node.vm.hostname = "node-#{i}"
-      node.ssh.insert_key = false
+      node.ssh.insert_key = true
       # node.vm.network "public_network",
       node.vm.network "private_network",
         # use_dhcp_assigned_default_route: true,

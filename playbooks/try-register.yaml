@@ -1,14 +1,14 @@
 ---
 
 - name: Save the result of setup module to register var and echo it next step
-  hosts: master
+  hosts: all
   tasks:
     - name: Save setup to register
       ansible.builtin.setup:
       # register: master_facts
     - name: Echo result
       ansible.builtin.debug:
-        var: ansible_all_ipv4_addresses
+        var: inventory_hostname
 ...
 # ok: [master] => {
 #     "master_facts": {
