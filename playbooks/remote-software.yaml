@@ -1,8 +1,17 @@
+---
 - name: Install and configure softaware on Vagrant machines
   hosts: all
+  become: true
   tasks:
     - name: Install git
       ansible.builtin.package:
-        name: git
+        name:
+          - jq
+          - git
         state: present
-      become: true
+      when: ansible_facts['os_family'] == "Debian"
+      register: facts
+    - name: Echo
+      ansible.builtin.debug:
+        var: facts
+...
