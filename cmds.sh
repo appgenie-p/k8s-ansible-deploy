@@ -7,3 +7,6 @@ ansible all -m ping -i ansible_hosts.cfg
 https://github.com/devopsgroup-io/vagrant-hostmanager
 vagrant plugin install vagrant-hostmanager
 vagrant hostmanager
+
+ansible-playbook -c local -i localhost, playbooks/git-config.yml -CD
+
