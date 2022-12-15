@@ -3,6 +3,14 @@
     (kubeadm).
 
 https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-Отключить swap.
-Добавить имена и адреса хостов в хостс (master worker1 worker2).
+Проверить уникальность mac
+V Отключить swap 
+    (https://germaniumhq.com/2019/02/14/2019-02-14-Disabling-Swap-for-Kubernetes-in-an-Ansible-Playbook/).
+V Добавить имена и адреса хостов в хостс (master worker1 worker2).
 Добавить имя хоста на сервере (hostnamectl)
+
+Проверить уникальность mac
+    master
+        02:07:82:9b:ea:86 brd ff:ff:ff:ff:ff:ff
+        08:00:27:70:a8:6d brd ff:ff:ff:ff:ff:ff
+    

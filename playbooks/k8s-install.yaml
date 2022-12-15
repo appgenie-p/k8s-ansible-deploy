@@ -1,0 +1,19 @@
+- name: Playbook for automatic k8s install
+  hosts: all
+  become: true
+  tasks:
+    - name: Remove swapfile
+      ansible.posix.mount:
+        path: swap
+        fstype: swap
+        state: absent
+        backup: true
+    - name: Create enties in hosts
+      ansible.builtin.blockinfile:
+        backup: true
+        state: present
+        path: /etc/hosts
+        block: |
+          10.0.1.9  master
+          10.0.1.10 node-10
+          10.0.1.11 node-11
