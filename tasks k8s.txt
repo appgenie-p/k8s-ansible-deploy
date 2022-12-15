@@ -1,0 +1,8 @@
+Сконфигурировать манифесты для сервисов кластера и разместить в соотв. месте 
+    Сгенерировать сертификаты для каждого компонента и клиента.
+    (kubeadm).
+
+https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+Отключить swap.
+Добавить имена и адреса хостов в хостс (master worker1 worker2).
+Добавить имя хоста на сервере (hostnamectl)
