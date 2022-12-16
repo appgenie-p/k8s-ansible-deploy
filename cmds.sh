@@ -11,3 +11,9 @@ vagrant hostmanager
 ansible-playbook -c local -i localhost, playbooks/git-config.yml -CD
 
 ansible -m debug -a 'var=hostvars[inventory_hostname]' localhost
+
+sudo sysctl -a | grep net.ipv4.ip_forward -A 5 -B 5
+
+deb amd64 https://download.docker.com/linux/ubuntu jammy stable
+
+sudo apt-get install containerd.io
