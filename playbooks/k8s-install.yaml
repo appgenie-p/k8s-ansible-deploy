@@ -157,5 +157,13 @@
             - kubectl
     - name: Play to install kubelet, kubeadm and kubectl
       block:
-        - name: Configure k8s cluster
+        - name: Create cluster
+          ansible.builtin.command:
+            # use second NOT default network interface. Default is bridge.
+            cmd: >
+              sudo kubeadm init --apiserver-advertise-address={{
+              ansible_all_ipv4_addresses[1] | quote }}
+          when: inventory_hostname in groups['master_nodes']
+          tags:
+            - skip_ansible_lint
   

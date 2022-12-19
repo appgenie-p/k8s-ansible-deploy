@@ -26,6 +26,7 @@ apb playbooks/k8s-install.yaml --start-at-task 'Generate default file content' \
 -l master -CD
 
 sudo kubeadm init --apiserver-advertise-address=10.0.1.9
+перезапустить kubelet
 ____________
 
 Your Kubernetes control-plane has initialized successfully!

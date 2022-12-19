@@ -1,9 +1,17 @@
 - name: Temp playbook for test purpoces
   hosts: all
-  gather_facts: false
+  gather_facts: true
   become: true
+
   tasks:
-    - name: Install prerequisites utils
-      ansible.builtin.apt:
-        update_cache: true
-        name: "{{ packages_for_install }}"
+    - name: Create cluster
+      ansible.builtin.command:
+        # use second NOT default network interface. Default is bridge.
+        cmd: >
+          sudo kubeadm init --apiserver-advertise-address={{
+          ansible_all_ipv4_addresses[1] | quote }}
+      when: inventory_hostname in groups['master_nodes']
+      #add check for kubelet service running
+      tags:
+        - skip_ansible_lint
+
