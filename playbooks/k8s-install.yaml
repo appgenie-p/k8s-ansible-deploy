@@ -155,3 +155,7 @@
             - kubelet
             - kubeadm
             - kubectl
+    - name: Play to install kubelet, kubeadm and kubectl
+      block:
+        - name: Configure k8s cluster
+  

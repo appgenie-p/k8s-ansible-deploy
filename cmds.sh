@@ -25,6 +25,7 @@ ansible master -m shell -a 'containerd config default'
 apb playbooks/k8s-install.yaml --start-at-task 'Generate default file content' \
 -l master -CD
 
+sudo kubeadm init --apiserver-advertise-address=10.0.1.9
 ____________
 
 Your Kubernetes control-plane has initialized successfully!
@@ -48,3 +49,7 @@ Then you can join any number of worker nodes by running the following on each as
 kubeadm join 10.0.2.15:6443 --token dmr6fh.g8tjkaf80a8tp9jw \
         --discovery-token-ca-cert-hash sha256:fd2fb95c0cd36fa80a048325681909eb5835259b48bb3be12b4c3eb0f4dd4c68 
 _____________
+
+sudo systemctl stop kubelet
+sudo systemctl start kubelet
+strace -eopenat kubectl version
