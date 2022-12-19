@@ -25,3 +25,26 @@ ansible master -m shell -a 'containerd config default'
 apb playbooks/k8s-install.yaml --start-at-task 'Generate default file content' \
 -l master -CD
 
+____________
+
+Your Kubernetes control-plane has initialized successfully!
+
+To start using your cluster, you need to run the following as a regular user:
+
+  mkdir -p $HOME/.kube
+  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+  sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+Alternatively, if you are the root user, you can run:
+
+  export KUBECONFIG=/etc/kubernetes/admin.conf
+
+You should now deploy a pod network to the cluster.
+Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
+  https://kubernetes.io/docs/concepts/cluster-administration/addons/
+
+Then you can join any number of worker nodes by running the following on each as root:
+
+kubeadm join 10.0.2.15:6443 --token dmr6fh.g8tjkaf80a8tp9jw \
+        --discovery-token-ca-cert-hash sha256:fd2fb95c0cd36fa80a048325681909eb5835259b48bb3be12b4c3eb0f4dd4c68 
+_____________

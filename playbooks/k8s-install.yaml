@@ -1,9 +1,18 @@
+---
 - name: Playbook for k8s install prerequisites
   hosts: all
   become: true
   gather_facts: true
+  vars:
+    packages_for_install:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - apt-transport-https
+
   tasks:
-    - name: Set time
+    - name: Play to set time
       block:
         - name: Set timezone
           community.general.timezone:
@@ -16,7 +25,7 @@
             state: restarted
           when: timeset_result.changed
 
-    - name: Fill k8s cluster prerequisites
+    - name: Play to fill k8s cluster CRI prerequisites
       block:
       # !!! Не выполнил требования для перехода на systemd в качестве менеджера
       # cgroup - для последующей проработки !!!
@@ -79,15 +88,10 @@
 
         # Update the apt package index and install packages to allow apt to use a
         # repository over HTTPS
-        - name: Install prerequisites utils
+        - name: Install prerequisites packages
           ansible.builtin.apt:
             update_cache: true
-            name:
-              - ca-certificates
-              - curl
-              - gnupg
-              - lsb-release
-              - apt-transport-https
+            name: "{{ packages_for_install }}"
 
         - name: Add Docker GPG apt Key
           ansible.builtin.apt_key:
@@ -122,3 +126,32 @@
             name: containerd
             state: restarted
 
+    - name: Play to install kubelet, kubeadm and kubectl
+      block:
+        - name: Add Google Cloud public signing key
+          ansible.builtin.apt_key:
+            url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+            state: present
+
+        - name: Add the Kubernetes apt repository
+          ansible.builtin.apt_repository:
+            repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+            state: present
+
+        - name: Install kubelet, kubeadm and kubectl
+          ansible.builtin.apt:
+            name:
+              - kubelet
+              - kubeadm
+              - kubectl
+            update_cache: true
+            state: present
+
+        - name: Prevent packages from being upgraded
+          ansible.builtin.dpkg_selections:
+            name: "{{ item }}"
+            selection: hold
+          loop:
+            - kubelet
+            - kubeadm
+            - kubectl

@@ -3,8 +3,6 @@
     (kubeadm).
 
 https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-https://github.com/containerd/containerd/blob/main/docs/getting-started.md
-https://www.cherryservers.com/blog/how-to-run-remote-commands-with-ansible-shell-module
 
 V Отключить swap 
 V Добавить имена и адреса хостов в хостс (master worker1 worker2).
@@ -12,16 +10,10 @@ V Установить CRI containerd и все необходимые комп�
 V Перезапустить сервис containerd
 V Установить московское время на серверах.
 
-Установить kubelet kubeadm kubectl
-Запустить kubeadm init
-Установить kubectl (kubectl get node - проверка)
+V Установить kubelet kubeadm kubectl
+V Запустить kubeadm init
+(kubectl get node - проверка)
 Определить файл конфигурации для kubectl в соответсвенную директорию.
     Поменять владельца и группу файла.
 Посмотреть список namespaces по умолчанию.
     Посмотреть поды в системных неймспейсах.
-
-
-Установить kubelet kubeadm kubectl
-    Прочитать страницу с документацией
-    Выписать необходимые шаги
-    Реализовать

@@ -2,37 +2,8 @@
   hosts: all
   gather_facts: false
   become: true
-
   tasks:
     - name: Install prerequisites utils
       ansible.builtin.apt:
         update_cache: true
-        name: apt-transport-https
-
-    - name: Add Google Cloud public signing key
-      ansible.builtin.apt_key:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-        state: present
-
-    - name: Add the Kubernetes apt repository
-      ansible.builtin.apt_repository:
-        repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
-        state: present
-
-    - name: Install kubelet, kubeadm and kubectl
-      ansible.builtin.apt:
-        name:
-          - kubelet
-          - kubeadm
-          - kubectl
-        update_cache: true
-        state: present
-
-    - name: Prevent packages from being upgraded
-      ansible.builtin.dpkg_selections:
-        name: "{{ item }}"
-        selection: hold
-      loop:
-        - kubelet
-        - kubeadm
-        - kubectl
+        name: "{{ packages_for_install }}"
