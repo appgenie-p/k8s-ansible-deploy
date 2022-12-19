@@ -3,6 +3,19 @@
   become: true
   gather_facts: true
   tasks:
+    - name: Set time
+      block:
+        - name: Set timezone
+          community.general.timezone:
+            name: Europe/Moscow
+          register: timeset_result
+
+        - name: Restart containerd service
+          ansible.builtin.service:
+            name: cron
+            state: restarted
+          when: timeset_result.changed
+
     - name: Remove swapfile
       ansible.posix.mount:
         path: swap
@@ -98,3 +111,9 @@
       changed_when: my_output.rc != 0
       tags:
         - skip_ansible_lint
+
+    - name: Restart containerd service
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+

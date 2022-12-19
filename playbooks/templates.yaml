@@ -13,3 +13,13 @@
   ansible.builtin.copy:
     content: "{{ config.stdout }}"
     dest: /etc/containerd/config.toml
+
+- name: Debug
+  ansible.builtin.debug:
+    msg: "{{ result.changed }}"    
+
+- name: Restart containerd service
+  ansible.builtin.service:
+    name: cron
+    state: restarted
+  when: result.changed
