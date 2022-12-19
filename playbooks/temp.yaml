@@ -1,0 +1,13 @@
+- name: Temp playbook for test purpoces
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Create containerd config
+      block:
+      - name: Create containerd config
+        tags:
+          - skip_ansible_lint
+        ansible.builtin.shell: |
+          mkdir /etc/containerd
+          containerd config default > /etc/containerd/config.toml

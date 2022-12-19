@@ -91,3 +91,11 @@
         update_cache: true
         name: containerd.io
         state: present
+
+    - name: Create containerd config
+      ansible.builtin.shell:
+        cmd: |
+          mkdir /etc/containerd
+          containerd config default > /etc/containerd/config.toml
+      register: my_output
+      changed_when: my_output.rc != 0

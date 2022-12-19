@@ -1,0 +1,15 @@
+- name: Create containerd config
+  ansible.builtin.shell:
+    cmd: containerd config default
+  register: config
+
+- name: Make folder for containerd configuration
+  ansible.builtin.file:
+    path: /etc/containerd/
+    state: directory
+    mode: '741'
+
+- name: Save config to file
+  ansible.builtin.copy:
+    content: "{{ config.stdout }}"
+    dest: /etc/containerd/config.toml
