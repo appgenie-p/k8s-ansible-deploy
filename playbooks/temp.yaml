@@ -3,11 +3,20 @@
   gather_facts: false
   become: true
   tasks:
-    - name: Create containerd config
-      block:
-      - name: Create containerd config
-        tags:
-          - skip_ansible_lint
-        ansible.builtin.shell: |
-          mkdir /etc/containerd
-          containerd config default > /etc/containerd/config.toml
+    - name: Create containerd config file
+      ansible.builtin.shell: |
+        mkdir /etc/containerd
+        containerd config default > /etc/containerd/config.toml
+      # args:
+      #   creates: /etc/containerd/config.toml
+      tags:
+        - skip_ansible_lint
+
+    # - name: Remove containerd config file
+    #   ansible.builtin.shell: |
+    #     rm /etc/containerd/config.toml
+    #     rmdir /etc/containerd
+    #   args:
+    #     removes: /etc/containerd/config.toml
+    #   tags:
+    #     - skip_ansible_lint
