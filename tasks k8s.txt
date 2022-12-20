@@ -12,9 +12,21 @@ V Установить московское время на серверах.
 
 V Установить kubelet kubeadm kubectl
 V Запустить kubeadm init
-(kubectl get node - проверка)
-Определить файл конфигурации для kubectl в соответсвенную директорию.
-    Поменять владельца и группу файла.
-Посмотреть список namespaces по умолчанию.
-    Посмотреть поды в системных неймспейсах.
-Запускать задачи только на ноде с именем master*.`
+V Определить файл конфигурации для kubectl в соответсвенную директорию.
+V Посмотреть список namespaces по умолчанию.
+V Запускать задачи только на ноде с именем master*.`
+
+Досмотреть раздел про сети k8s, выписать задачи
+Посмотреть пример успешного запуска kubeadm и воссоздать при необходимости.
+Настроить systemd для управления cgroups. 
+    https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/configure-cgroup-driver/
+Настроить сетевой плагин:
+    https://kubernetes.io/docs/concepts/cluster-administration/addons/
+    https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/troubleshooting-cni-plugin-related-errors/
+Настроить автозаполнение для kubectl
+Создать элиас для kubectl
+Прочитать статью:
+    How to View Kubernetes Pod Logs With Kubectl
+    https://www.howtogeek.com/devops/how-to-view-kubernetes-pod-logs-with-kubectl/
+
+

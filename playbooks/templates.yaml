@@ -23,3 +23,15 @@
     name: cron
     state: restarted
   when: result.changed
+
+# Получение состояние службы/сервиса на хосте
+- name: Get services status
+  ansible.builtin.service_facts:
+
+- name: Debug
+  ansible.builtin.debug:
+    msg: "{{ ansible_facts.services['kubelet.service'].state }}"
+
+# Отключить линтер
+tags:
+  - skip_ansible_lint

@@ -10,6 +10,7 @@
       - gnupg
       - lsb-release
       - apt-transport-https
+      - net-tools
 
   tasks:
     - name: Play to set time
@@ -155,15 +156,17 @@
             - kubelet
             - kubeadm
             - kubectl
-    - name: Play to install kubelet, kubeadm and kubectl
+
+    - name: Play to create cluster with kubeadm
       block:
+        # - name: Get services status
+        #   ansible.builtin.service_facts:
+
         - name: Create cluster
           ansible.builtin.command:
             # use second NOT default network interface. Default is bridge.
             cmd: >
               sudo kubeadm init --apiserver-advertise-address={{
               ansible_all_ipv4_addresses[1] | quote }}
-          when: inventory_hostname in groups['master_nodes']
-          tags:
-            - skip_ansible_lint
-  
+          when: >
+            inventory_hostname in groups['master_nodes']

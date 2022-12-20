@@ -25,32 +25,45 @@ ansible master -m shell -a 'containerd config default'
 apb playbooks/k8s-install.yaml --start-at-task 'Generate default file content' \
 -l master -CD
 
-sudo kubeadm init --apiserver-advertise-address=10.0.1.9
-перезапустить kubelet
-____________
-
-Your Kubernetes control-plane has initialized successfully!
-
-To start using your cluster, you need to run the following as a regular user:
-
-  mkdir -p $HOME/.kube
-  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
-  sudo chown $(id -u):$(id -g) $HOME/.kube/config
-
-Alternatively, if you are the root user, you can run:
-
-  export KUBECONFIG=/etc/kubernetes/admin.conf
-
-You should now deploy a pod network to the cluster.
-Run "kubectl apply -f [podnetwork].yaml" with one of the options listed at:
-  https://kubernetes.io/docs/concepts/cluster-administration/addons/
-
-Then you can join any number of worker nodes by running the following on each as root:
-
-kubeadm join 10.0.2.15:6443 --token dmr6fh.g8tjkaf80a8tp9jw \
-        --discovery-token-ca-cert-hash sha256:fd2fb95c0cd36fa80a048325681909eb5835259b48bb3be12b4c3eb0f4dd4c68 
-_____________
+# Пнуть кублет, если не отвечает
+sudo systemctl status kubelet
 
 sudo systemctl stop kubelet
 sudo systemctl start kubelet
 strace -eopenat kubectl version
+
+# Установка - рабочий гид.
+# https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
+# https://www.digitalocean.com/community/tutorials/how-to-create-a-kubernetes-cluster-using-kubeadm-on-ubuntu-18-04
+
+# Установка кластера
+sudo kubeadm init --apiserver-advertise-address=10.0.1.9 --pod-network-cidr=10.244.0.0/16
+# sudo kubeadm init --apiserver-advertise-address=10.0.1.9 &&
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+ll $HOME/.kube/config
+kubectl get namespace
+kubectl cluster-info
+kubectl get pod -n kube-system
+
+# унижтожение ноды кластера
+sudo kubeadm reset -f &&
+rm $HOME/.kube/config &&
+sudo rm /etc/cni/net.d
+
+# Проверить статус кластера
+kubectl get pod -n kube-system
+kubectl cluster-info
+sudo netstat -pnlt | grep 6443
+kubectl get namespace
+kubectl get nodes
+
+# Дебаг проблем с кластером
+kubectl cluster-info dump
+sudo netstat -pnlt | grep 6443
+# tcp6 0 0 :::6443 :::* LISTEN 4546/kube-apiserver
+journalctl -xeu kubelet
+
+# Возможно здесь решение:
+# https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/troubleshooting-cni-plugin-related-errors/

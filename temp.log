@@ -1,0 +1,18 @@
+NAME                             READY   STATUS             RESTARTS        AGE
+coredns-787d4945fb-kz9gh         0/1     Pending            0               5m30s
+coredns-787d4945fb-srgzl         0/1     Pending            0               5m30s
+etcd-master                      1/1     Running            1 (6m25s ago)   5m
+kube-apiserver-master            1/1     Running            4 (115s ago)    5m52s
+kube-controller-manager-master   0/1     CrashLoopBackOff   4 (79s ago)     5m10s
+kube-proxy-kbtk8                 0/1     Error              4               5m30s
+kube-scheduler-master            1/1     Running            3 (3m41s ago)   4m50s
+
+6935 pod_workers.go:965] "Error syncing pod, skipping" err="failed to \"StartContainer\" 
+for \"kube-controller-manager\" with CrashLoopBackOff: \"back-skipping" err="failed to 
+\"StartContainer\" for \"kube-controller-manager\" with CrashLoopBackOff: 
+\"back-off 5m0s restarting failed container=kube-controller-manager 
+pod=kube-controller-manager-master_kube-system off 5m0s restarting failed 
+container=kube-controller-manager 
+pod=kube-controller-manager-master_kube-system(c4599a9d624c7df6416e49ffcdac3379)\"" 
+pod="kube-system/kube-controller-manager-master" podUID=c4599a9d624c7 (c4599a9d624c7df6416e49ffcdac3379)\"" 
+pod="kube-system/kube-controller-manager-master" podUID=c4599a9d624c7df6416e49ffcdac3379
