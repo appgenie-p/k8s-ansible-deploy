@@ -15,9 +15,11 @@ V Запустить kubeadm init
 V Определить файл конфигурации для kubectl в соответсвенную директорию.
 V Посмотреть список namespaces по умолчанию.
 V Запускать задачи только на ноде с именем master*.`
+V Досмотреть раздел про сети k8s, выписать задачи
+V Посмотреть пример успешного запуска kubeadm и воссоздать при необходимости.
+    https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
 
-Досмотреть раздел про сети k8s, выписать задачи
-Посмотреть пример успешного запуска kubeadm и воссоздать при необходимости.
+
 Настроить systemd для управления cgroups. 
     https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/configure-cgroup-driver/
 Настроить сетевой плагин:
@@ -30,3 +32,5 @@ V Запускать задачи только на ноде с именем mas
     https://www.howtogeek.com/devops/how-to-view-kubernetes-pod-logs-with-kubectl/
 
 
+Посмотреть пример успешного запуска kubeadm и воссоздать при необходимости.
+    https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/

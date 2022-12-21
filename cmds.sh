@@ -37,8 +37,8 @@ strace -eopenat kubectl version
 # https://www.digitalocean.com/community/tutorials/how-to-create-a-kubernetes-cluster-using-kubeadm-on-ubuntu-18-04
 
 # Установка кластера
-sudo kubeadm init --apiserver-advertise-address=10.0.1.9 --pod-network-cidr=10.244.0.0/16
-# sudo kubeadm init --apiserver-advertise-address=10.0.1.9 &&
+sudo kubeadm init --apiserver-advertise-address=10.0.1.9
+
 mkdir -p $HOME/.kube
 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -67,3 +67,4 @@ journalctl -xeu kubelet
 
 # Возможно здесь решение:
 # https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/troubleshooting-cni-plugin-related-errors/
+
