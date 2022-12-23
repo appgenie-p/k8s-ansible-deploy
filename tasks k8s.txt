@@ -1,8 +1,5 @@
-Сконфигурировать манифесты для сервисов кластера и разместить в соотв. месте 
-    Сгенерировать сертификаты для каждого компонента и клиента.
-    (kubeadm).
-
 https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+    https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
 
 V Отключить swap 
 V Добавить имена и адреса хостов в хостс (master worker1 worker2).
@@ -17,20 +14,15 @@ V Посмотреть список namespaces по умолчанию.
 V Запускать задачи только на ноде с именем master*.`
 V Досмотреть раздел про сети k8s, выписать задачи
 V Посмотреть пример успешного запуска kubeadm и воссоздать при необходимости.
-    https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
-
-
-Настроить systemd для управления cgroups. 
-    https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/configure-cgroup-driver/
+V Настроить containerd использовать systemd для управления cgroups.
 Настроить сетевой плагин:
     https://kubernetes.io/docs/concepts/cluster-administration/addons/
     https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/troubleshooting-cni-plugin-related-errors/
-Настроить автозаполнение для kubectl
-Создать элиас для kubectl
 Прочитать статью:
     How to View Kubernetes Pod Logs With Kubectl
     https://www.howtogeek.com/devops/how-to-view-kubernetes-pod-logs-with-kubectl/
+Настроить Ansible для создания машин vagrant.
+    https://docs.ansible.com/ansible/latest/scenario_guides/guide_vagrant.html
+    https://developers.redhat.com/blog/2016/09/08/a-simple-guide-to-provisioning-vagrant-boxes-with-ansible
 
 
-Посмотреть пример успешного запуска kubeadm и воссоздать при необходимости.
-    https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/

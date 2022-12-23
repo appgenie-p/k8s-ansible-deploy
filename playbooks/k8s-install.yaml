@@ -112,61 +112,81 @@
             name: containerd.io
             state: present
 
-    #     - name: Create containerd config
-    #       ansible.builtin.shell:
-    #         cmd: |
-    #           mkdir /etc/containerd
-    #           containerd config default > /etc/containerd/config.toml
-    #       register: my_output
-    #       changed_when: my_output.rc != 0
-    #       # tags:
-    #       #   - skip_ansible_lint
+        - name: Create directory for kubectl config
+          ansible.builtin.file:
+            path: /etc/containerd
+            state: directory
+            mode: '755'
 
-    #     - name: Restart containerd service
-    #       ansible.builtin.service:
-    #         name: containerd
-    #         state: restarted
+        - name: Create containerd config
+          ansible.builtin.shell: |
+              containerd config default > /etc/containerd/config.toml
+          register: my_output
+          changed_when: my_output.rc == 0
 
-    # - name: Play to install kubelet, kubeadm and kubectl
-    #   block:
-    #     - name: Add Google Cloud public signing key
-    #       ansible.builtin.apt_key:
-    #         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-    #         state: present
+        - name: Configure containerd so that it starts using systemd as cgroup
+          ansible.builtin.lineinfile:
+            path: /etc/containerd/config.toml
+            regexp: 'SystemdCgroup = false'
+            line: SystemdCgroup = true
 
-    #     - name: Add the Kubernetes apt repository
-    #       ansible.builtin.apt_repository:
-    #         repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
-    #         state: present
+        - name: Restart containerd service
+          ansible.builtin.service:
+            name: containerd
+            state: restarted
 
-    #     - name: Install kubelet, kubeadm and kubectl
-    #       ansible.builtin.apt:
-    #         name:
-    #           - kubelet
-    #           - kubeadm
-    #           - kubectl
-    #         update_cache: true
-    #         state: present
+    - name: Play to install kubelet, kubeadm and kubectl
+      block:
+        - name: Add Google Cloud public signing key
+          ansible.builtin.apt_key:
+            url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+            state: present
 
-    #     - name: Prevent packages from being upgraded
-    #       ansible.builtin.dpkg_selections:
-    #         name: "{{ item }}"
-    #         selection: hold
-    #       loop:
-    #         - kubelet
-    #         - kubeadm
-    #         - kubectl
+        - name: Add the Kubernetes apt repository
+          ansible.builtin.apt_repository:
+            repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+            state: present
 
-    # - name: Play to create cluster with kubeadm
-    #   block:
-    #     # - name: Get services status
-    #     #   ansible.builtin.service_facts:
+        - name: Install kubelet, kubeadm and kubectl
+          ansible.builtin.apt:
+            name:
+              - kubelet
+              - kubeadm
+              - kubectl
+            update_cache: true
+            state: present
 
-    #     - name: Create cluster
-    #       ansible.builtin.command:
-    #         # use second NOT default network interface. Default is bridge.
-    #         cmd: >
-    #           sudo kubeadm init --apiserver-advertise-address={{
-    #           ansible_all_ipv4_addresses[1] | quote }}
-    #       when: >
-    #         inventory_hostname in groups['master_nodes']
+        - name: Prevent packages from being upgraded
+          ansible.builtin.dpkg_selections:
+            name: "{{ item }}"
+            selection: hold
+          loop:
+            - kubelet
+            - kubeadm
+            - kubectl
+
+    - name: Play to create cluster with kubeadm
+      block:
+        - name: Create cluster
+          ansible.builtin.command:
+            # use second NOT default network interface. Default is bridge.
+            cmd: >
+              kubeadm init --apiserver-advertise-address={{
+              ansible_all_ipv4_addresses[1] | quote }}
+          when: inventory_hostname in groups['master_nodes']
+
+        - name: Create directory for kubectl config
+          become: false
+          ansible.builtin.file:
+            path: $HOME/.kube
+            state: directory
+            mode: '775'
+
+        - name: Configure kubectl interract with cluster
+          become: false
+          ansible.builtin.shell: |
+            sudo cp -n /etc/kubernetes/admin.conf $HOME/.kube/config
+            sudo chown $(id -u):$(id -g) $HOME/.kube/config
+          when: inventory_hostname in groups['master_nodes']
+          register: my_output
+          changed_when: my_output.rc == 0

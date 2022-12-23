@@ -21,6 +21,10 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  # config.vm.provision "ansible" do |ansible|
+  #   ansible.playbook = "playbooks/k8s-install.yaml"
+  # end
+
   # (1..2).each do |i|
   (10..11).each do |i|
     config.vm.define "node-#{i}" do |node|

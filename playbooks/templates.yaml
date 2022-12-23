@@ -35,3 +35,23 @@
 # Отключить линтер
 tags:
   - skip_ansible_lint
+
+  
+- name: facts based on services
+  block:
+    - name: Get services status
+      ansible.builtin.service_facts:
+
+    - name: Debug
+      ansible.builtin.debug:
+        msg: "{{ ansible_facts.services['kubelet.service'].state }}"
+
+    - name: Create cluster
+      ansible.builtin.command:
+        # use second NOT default network interface. Default is bridge.
+        cmd: >
+          sudo kubeadm init --apiserver-advertise-address={{
+          ansible_all_ipv4_addresses[1] | quote }}
+      when: >
+        inventory_hostname in groups['master_nodes'] and
+        ansible_facts.services['kubelet.service'].state == 'started'

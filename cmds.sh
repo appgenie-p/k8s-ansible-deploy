@@ -68,3 +68,6 @@ journalctl -xeu kubelet
 # Возможно здесь решение:
 # https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/troubleshooting-cni-plugin-related-errors/
 
+cat /etc/containerd/config.toml | grep SystemdCgroup
+sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+sudo sed -i 's/SystemdCgroup \= true/SystemdCgroup \= false/g' /etc/containerd/config.toml
