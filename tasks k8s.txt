@@ -1,12 +1,10 @@
 https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
     https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
-
 V Отключить swap 
 V Добавить имена и адреса хостов в хостс (master worker1 worker2).
 V Установить CRI containerd и все необходимые компоненты
 V Перезапустить сервис containerd
 V Установить московское время на серверах.
-
 V Установить kubelet kubeadm kubectl
 V Запустить kubeadm init
 V Определить файл конфигурации для kubectl в соответсвенную директорию.
@@ -15,14 +13,22 @@ V Запускать задачи только на ноде с именем mas
 V Досмотреть раздел про сети k8s, выписать задачи
 V Посмотреть пример успешного запуска kubeadm и воссоздать при необходимости.
 V Настроить containerd использовать systemd для управления cgroups.
-Настроить сетевой плагин:
-    https://kubernetes.io/docs/concepts/cluster-administration/addons/
-    https://kubernetes.io/docs/tasks/administer-cluster/migrating-from-dockershim/troubleshooting-cni-plugin-related-errors/
+V Настроить сетевой плагин через ансибл.
+V Выполнить до конца пример из статьи по развертыванию.
+V Попробовать выполнить все рекомендации по подключению weave.
+Изучить ссылки на материалы в курсе.
+Попробовать на виртуалках с публичным интерфейсом и одной сетевухой. 
+Попробовать выполнить по гиду digitalocean.
+Попробовать сделать все вручную с самого начала по мануалам.
+Попробовать на другой ОС.
+Пройтись и выполнить все условия вводного гайда по установке:
+    https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
 Прочитать статью:
     How to View Kubernetes Pod Logs With Kubectl
     https://www.howtogeek.com/devops/how-to-view-kubernetes-pod-logs-with-kubectl/
-Настроить Ansible для создания машин vagrant.
-    https://docs.ansible.com/ansible/latest/scenario_guides/guide_vagrant.html
-    https://developers.redhat.com/blog/2016/09/08/a-simple-guide-to-provisioning-vagrant-boxes-with-ansible
+Проверить логи контейнера с weave net на worker nodes, увидеть ошибки \
+    подключения к мастеру. В моем случае их отсутвие, так как порты открыты.
+Автоматизировать подключение worker nodes через ansible.
 
 
+Изучить ссылки на материалы в курсе.

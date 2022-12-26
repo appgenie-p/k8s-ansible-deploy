@@ -4,18 +4,9 @@
   become: true
 
   tasks:
-    - name: Create directory for kubectl config
-      become: false
-      ansible.builtin.file:
-        path: $HOME/.kube
-        state: directory
-        mode: '775'
-
-    - name: Configure kubectl interract with cluster
-      become: false
-      ansible.builtin.shell: |
-        sudo cp -n /etc/kubernetes/admin.conf $HOME/.kube/config
-        sudo chown $(id -u):$(id -g) $HOME/.kube/config
-      when: inventory_hostname in groups['master_nodes']
-      register: my_output
-      changed_when: my_output.rc == 0
+    - name: Connect Weave Net CNI add on
+      ansible.builtin.command: >
+        kubectl apply -f
+        https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+      register: output
+      changed_when: output.rc == 0

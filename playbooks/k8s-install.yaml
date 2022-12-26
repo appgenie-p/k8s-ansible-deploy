@@ -20,7 +20,7 @@
             name: Europe/Moscow
           register: timeset_result
 
-        - name: Restart containerd service
+        - name: Restart cron service
           ansible.builtin.service:
             name: cron
             state: restarted
@@ -165,15 +165,17 @@
             - kubeadm
             - kubectl
 
-    - name: Play to create cluster with kubeadm
+    - name: Play to create cluster with kubeadm on control nodes
+      when: inventory_hostname in groups['master_nodes']
       block:
-        - name: Create cluster
+        - name: Create cluster kubeadm init
           ansible.builtin.command:
             # use second NOT default network interface. Default is bridge.
             cmd: >
               kubeadm init --apiserver-advertise-address={{
               ansible_all_ipv4_addresses[1] | quote }}
-          when: inventory_hostname in groups['master_nodes']
+          register: output
+          changed_when: output.rc == 0
 
         - name: Create directory for kubectl config
           become: false
@@ -188,5 +190,10 @@
             sudo cp -n /etc/kubernetes/admin.conf $HOME/.kube/config
             sudo chown $(id -u):$(id -g) $HOME/.kube/config
           when: inventory_hostname in groups['master_nodes']
-          register: my_output
-          changed_when: my_output.rc == 0
+          register: output
+          changed_when: output.rc == 0
+
+        # - name: Connect Weave Net CNI add on
+        #   ansible.builtin.command: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+        #   register: output
+        #   changed_when: output.rc == 0

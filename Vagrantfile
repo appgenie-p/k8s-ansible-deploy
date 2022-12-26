@@ -1,3 +1,5 @@
+# https://medium.com/linuxstories/vagrant-create-a-multi-machine-environment-b90738383a7e
+
 Vagrant.configure("2") do |config|
   config.vm.box_check_update = false
   # config.vm.provision :ansible do |ansible|
