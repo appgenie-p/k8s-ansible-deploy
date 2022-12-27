@@ -41,16 +41,67 @@ sudo rm /etc/cni/net.d
 # Проверить статус кластера
 kubectl cluster-info
 kubectl -n kube-system get cm kubeadm-config -o yaml
+    apiVersion: v1
+    # data:
+    #   ClusterConfiguration: |
+    #     apiServer:
+    #       extraArgs:
+    #         authorization-mode: Node,RBAC
+    #       timeoutForControlPlane: 4m0s
+    #     apiVersion: kubeadm.k8s.io/v1beta3
+    #     certificatesDir: /etc/kubernetes/pki
+    #     clusterName: kubernetes
+    #     controllerManager: {}
+    #     dns: {}
+    #     etcd:
+    #       local:
+    #         dataDir: /var/lib/etcd
+    #     imageRepository: k8s.gcr.io
+    #     kind: ClusterConfiguration
+    #     kubernetesVersion: v1.22.17
+    #     networking:
+    #       dnsDomain: cluster.local
+    #       podSubnet: 10.244.0.0/16
+    #       serviceSubnet: 10.96.0.0/12
+    #     scheduler: {}
+    # kind: ConfigMap
+    # metadata:
+    #   creationTimestamp: "2022-12-27T13:36:45Z"
+    #   name: kubeadm-config
+    #   namespace: kube-system
+    #   resourceVersion: "210"
+    #   uid: 016a4fc4-0dba-49ce-8168-3b3d167a5927
 kubectl get svc
+    # NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+    # kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   50m
 kubectl get namespace
-kubectl get node -o wide
-kubectl get pod -n kube-system -o wide
 sudo netstat -pnlt | grep 6443
 kubectl config view
+    apiVersion: v1
+    # clusters:
+    # - cluster:
+    #     certificate-authority-data: DATA+OMITTED
+    #     server: https://10.0.1.9:6443
+    #   name: kubernetes
+    # contexts:
+    # - context:
+    #     cluster: kubernetes
+    #     user: kubernetes-admin
+    #   name: kubernetes-admin@kubernetes
+    # current-context: kubernetes-admin@kubernetes
+    # kind: Config
+    # preferences: {}
+    # users:
+    # - name: kubernetes-admin
+    #   user:
+    #     client-certificate-data: REDACTED
+    #     client-key-data: REDACTED
+kubectl get node -o wide
+kubectl get pod -n kube-system -o wide
 
 # Network Add-ons
-# https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
-# https://www.weave.works/docs/net/latest/install/installing-weave/
+    # https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
+    # https://www.weave.works/docs/net/latest/install/installing-weave/
 
 # Install CNI Add-on Weave Net
 wget https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
@@ -60,9 +111,6 @@ kubectl apply -f weave-daemonset-k8s.yaml
 kubeadm token create --print-join-command
     kubeadm join 10.0.2.15:6443 --token u048fl.9l7zst4i98s4y4al --discovery-token-ca-cert-hash \
         sha256:2dc6aac05cd4e49d11ae33c99b08aea6becc6a99daa375cc3ee0c052aa904428
-
-# Проверить статус подключения:
-curl 127.0.0.1:6784/status
 
 ###################################################################
 # Дебаг проблем с кластером
@@ -86,8 +134,8 @@ kubectl get events
 # https://stackoverflow.com/questions/61278005/weave-crashloopbackoff-on-fresh-ha-cluster
 
 # !!! Отобразить логи CRI
-crictl logs
 sudo crictl ps -a
+sudo crictl logs
 
 sudo crictl logs <problem-container-ID>
     sudo crictl logs ddb989960587a

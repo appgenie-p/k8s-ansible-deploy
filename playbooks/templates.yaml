@@ -55,3 +55,10 @@ tags:
       when: >
         inventory_hostname in groups['master_nodes'] and
         ansible_facts.services['kubelet.service'].state == 'started'
+
+# Выполнить комманду, только если она до этого не выполнялась - трюк.
+- name: join cluster
+  shell: "{{ hostvars['control1'].join_command }} >> node_joined.txt"
+  args:
+    chdir: $HOME
+    creates: node_joined.txt
