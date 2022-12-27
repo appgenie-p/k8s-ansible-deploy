@@ -7,14 +7,17 @@ Vagrant.configure("2") do |config|
   # end
   config.vm.define "master" do |master|
     check_guest_additions = false
-    master.vm.box = "ubuntu/jammy64"
+    # master.vm.box = "ubuntu/jammy64"
+    master.vm.box = "ubuntu/focal64"
     master.vm.hostname = "master"
     master.ssh.insert_key = true
     # master.vm.network "public_network",
     master.vm.network "private_network",
       # use_dhcp_assigned_default_route: true,
       # bridge: "en1: Wi-Fi (AirPort)",
+      # adapter: "1",
       ip: "10.0.1.9"
+      # ip: "192.168.1.9"
     master.vm.provider "virtualbox" do |vb|
       vb.linked_clone = true
       vb.name = "master"
@@ -31,14 +34,17 @@ Vagrant.configure("2") do |config|
   (10..11).each do |i|
     config.vm.define "node-#{i}" do |node|
       check_guest_additions = false
-      node.vm.box = "ubuntu/jammy64"
+      # node.vm.box = "ubuntu/jammy64"
+      node.vm.box = "ubuntu/focal64"      
       node.vm.box_check_update = false
       node.vm.hostname = "node-#{i}"
       node.ssh.insert_key = true
       # node.vm.network "public_network",
       node.vm.network "private_network",
         # use_dhcp_assigned_default_route: true,
-        # bridge: "en1: Wi-Fi (AirPort)"
+        # bridge: "en1: Wi-Fi (AirPort)",
+        # adapter: "1",
+        # ip: "192.168.1.#{i}"
         ip: "10.0.1.#{i}"
       node.vm.provider "virtualbox" do |vb|
         vb.linked_clone = true

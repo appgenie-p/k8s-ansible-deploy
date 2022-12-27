@@ -17,6 +17,7 @@ apb playbooks/k8s-install.yaml --start-at-task 'Generate default file content' \
 # Установка кластера - рабочий гид:
     # https://www.linuxtechi.com/install-kubernetes-on-ubuntu-22-04/
     # https://www.digitalocean.com/community/tutorials/how-to-create-a-kubernetes-cluster-using-kubeadm-on-ubuntu-18-04
+    # https://www.digitalocean.com/community/tutorials/how-to-create-a-kubernetes-cluster-using-kubeadm-on-ubuntu-20-04
 
 cat /etc/containerd/config.toml | grep SystemdCgroup
 sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
@@ -54,30 +55,26 @@ kubectl config view
 # Install CNI Add-on Weave Net
 wget https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
 kubectl apply -f weave-daemonset-k8s.yaml
-kubectl get pod -n kube-system -o wide
 
 # Подключить worker nodes
 kubeadm token create --print-join-command
-kubeadm join 10.0.1.9:6443 --token vzwoie.7hlnk7rqxb9pmwsh --discovery-token-ca-cert-hash sha256:846cf8a5a02d7dc65194b6885e88d2e14d2f7f1e24c6c15aa82f378cfbdcd4b2
+    kubeadm join 10.0.2.15:6443 --token u048fl.9l7zst4i98s4y4al --discovery-token-ca-cert-hash \
+        sha256:2dc6aac05cd4e49d11ae33c99b08aea6becc6a99daa375cc3ee0c052aa904428
 
 # Проверить статус подключения:
 curl 127.0.0.1:6784/status
 
-# #########################################
+###################################################################
 # Дебаг проблем с кластером
-# Debug
 # https://kubernetes.io/docs/tasks/debug/debug-application/
-# Debug Init Containers
-# https://kubernetes.io/docs/tasks/debug/debug-application/debug-init-containers/
-
-# https://github.com/projectcalico/calico/issues/3053
+# https://sematext.com/blog/tail-kubernetes-logs/
 
 kubectl cluster-info dump
 sudo netstat -pnlt | grep 6443
 # tcp6 0 0 :::6443 :::* LISTEN 4546/kube-apiserver
 
 # Отобразить логи kubelet
-journalctl -u kubelet
+sudo journalctl -u kubelet --no-pager
 journalctl -xeu kubelet
 sudo journalctl -xu kubelet --no-pager
 sudo journalctl -xu kubelet --no-pager -S 2019-12-30 > kubelet.log
@@ -85,9 +82,23 @@ sudo journalctl -xu kubelet --no-pager -S 2019-12-30 > kubelet.log
 # Получит события кластера
 kubectl get events
 
+# https://github.com/weaveworks/weave/issues/3437
+# https://stackoverflow.com/questions/61278005/weave-crashloopbackoff-on-fresh-ha-cluster
+
+# !!! Отобразить логи CRI
+crictl logs
+sudo crictl ps -a
+
+sudo crictl logs <problem-container-ID>
+    sudo crictl logs ddb989960587a
+
+sudo containerd version
+kubectl version --short -o yaml
+
 # Получить информацию о поде
 kubectl get pod <pod-name> -n kube-system -o wide
     kubectl get pod weave-net-8gk47 -n kube-system -o wide
+    kubectl get pod weave-net-8gk47 -n kube-system -o yaml
 
 kubectl describe pod <pod-name> -n kube-system
     kubectl describe pod weave-net-8gk47 -n kube-system
@@ -107,35 +118,22 @@ kubectl logs -n kube-system <pod-name> -c <container-name>
 
 kubectl logs -n kube-system <pod-name> -c <container-name> --previous=true
     kubectl logs -n kube-system weave-net-8gk47 -c weave-npc --previous=true
-    kubectl logs -n kube-system weave-net-8gk47 -c weave-kube --previous=true
+    kubectl logs -n kube-system weave-net-8gk47 -c weave-kube -p
+    kubectl logs -n kube-system weave-net-8gk47 -c weave-init -p
 # Статус контейнера
 kubectl get pod <pod-name> --template '{{.status.initContainerStatuses}}' -n kube-system
     kubectl get pod weave-net-8gk47 --template '{{.status.initContainerStatuses}}' -n kube-system
 
-# init container
-kubectl describe pod <pod-name> -o yaml
-    kubectl describe pod weave-net-8gk47 -n kube-system -o yaml
+# Логи контейренов
+kubectl describe pod <pod-name>
+    kubectl describe pod -n kube-system weave-net-8gk47
 
-kubectl describe pod <pod-name> -n kube-system -o yaml | grep 'Image ID:'
-    kubectl describe pod weave-net-8gk47 -n kube-system -o yaml | grep weave-npc
-
-kubectl logs <pod-name> -c <init-container-2> -o yaml
-    kubectl logs weave-net-8gk47 -c <init-container-2> -o yaml
+kubectl logs <pod-name> -c <init-container-2>
+    kubectl logs weave-net-8gk47 -n kube-system --all-containers=true
+    kubectl logs weave-net-8gk47 -n kube-system -c weave-npc
 
 # To access one of the containers in the pod, enter the following command
 kubectl exec -it pod_name -c container_name bash
 kubectl exec -n kube-system weave-net-8gk47 -c weave -- /home/weave/weave --local status
 
 # #########################################
-
-
-# Можно попробовать продлолжить от сюда:
-https://github.com/kubernetes/kubernetes/issues/34101
-https://github.com/weaveworks/weave/issues/3636
-
-Dec 26 13:18:50 master kubelet[6563]: E1226 13:18:50.857635    6563 run.go:74 "command failed" err="failed to validate kubelet flags: the container runtime "command failed" err="failed to validate kubelet flags: the container runtime endpoint address was not specified or empty, use --container-runtime-endpoint to set"
-
-Dec 26 13:19:07 master kubelet[6623]: Flag --pod-infra-container-image has been deprecated, will be removed in 1.27. Image garbage collector will get sandbox>
-Dec 26 13:19:07 master kubelet[6623]: I1226 13:19:07.954211    6623 server.go:198] "--pod-infra-container-image will not be pruned by the image garbage colle>
-Dec 26 13:19:07 master kubelet[6623]: Flag --pod-infra-container-image has been deprecated, will be removed in 1.27. Image garbage collector will get sandbox>
-

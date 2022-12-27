@@ -42,6 +42,10 @@
             # backup: true
             state: present
             path: /etc/hosts
+            # block: |
+            #   192.168.1.9  master
+            #   192.168.1.10 node-10
+            #   192.168.1.11 node-11
             block: |
               10.0.1.9  master
               10.0.1.10 node-10
@@ -167,25 +171,23 @@
 
     - name: Play to create cluster with kubeadm on control nodes
       when: inventory_hostname in groups['master_nodes']
+      become: false
       block:
         - name: Create cluster kubeadm init
+          become: true
           ansible.builtin.command:
             # use second NOT default network interface. Default is bridge.
-            cmd: >
-              kubeadm init --apiserver-advertise-address={{
-              ansible_all_ipv4_addresses[1] | quote }}
+            cmd: kubeadm init --apiserver-advertise-address=10.0.1.9
           register: output
           changed_when: output.rc == 0
 
         - name: Create directory for kubectl config
-          become: false
           ansible.builtin.file:
             path: $HOME/.kube
             state: directory
             mode: '775'
 
         - name: Configure kubectl interract with cluster
-          become: false
           ansible.builtin.shell: |
             sudo cp -n /etc/kubernetes/admin.conf $HOME/.kube/config
             sudo chown $(id -u):$(id -g) $HOME/.kube/config
@@ -193,7 +195,24 @@
           register: output
           changed_when: output.rc == 0
 
-        # - name: Connect Weave Net CNI add on
-        #   ansible.builtin.command: kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-        #   register: output
-        #   changed_when: output.rc == 0
+        - name: Download weave-daemonset-k8s.yaml
+          ansible.builtin.get_url:
+            url: https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+            dest: /home/vagrant/weave-daemonset-k8s.yaml
+            mode: '664'
+
+        - name: Install Weave CNI Add-on
+          ansible.builtin.command: kubectl apply -f /home/vagrant/weave-daemonset-k8s.yaml
+          register: output
+          changed_when: output.rc == 0
+
+        - name: Save token to join cluster
+          ansible.builtin.command: kubeadm token create --print-join-command
+          register: token
+          changed_when: token.rc != 0
+
+    - name: Join nodes to cluster
+      when: inventory_hostname in groups['worker_nodes']
+      ansible.builtin.command: "{{ hostvars.master.token.stdout }}"
+      register: output
+      changed_when: output.rc == 0

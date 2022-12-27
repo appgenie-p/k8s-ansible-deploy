@@ -4,9 +4,8 @@
   become: true
 
   tasks:
-    - name: Connect Weave Net CNI add on
-      ansible.builtin.command: >
-        kubectl apply -f
-        https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-      register: output
-      changed_when: output.rc == 0
+    - name: Debug
+      ansible.builtin.debug:
+        msg: >
+          {{
+          ansible_all_ipv4_addresses[0] | quote }}
