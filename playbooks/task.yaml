@@ -13,11 +13,11 @@
           ansible.builtin.shell: >-
             sudo kubeadm init
             --apiserver-advertise-address=10.0.1.9
-            --pod-network-cidr=10.32.0.0/12
             >> cluster-init-output.txt
           args:
             chdir: $HOME
             creates: cluster-init-output.txt
+            # --pod-network-cidr=10.32.0.0/12
             # --control-plane-endpoint=10.0.1.9
             # --upload-certs
             # --cri-socket unix:///run/containerd/containerd.sock

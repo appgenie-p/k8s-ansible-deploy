@@ -42,12 +42,9 @@ kubectl get pod -n kube-system
 
 # Network Add-ons
     # https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
-    # https://www.weave.works/docs/net/latest/install/installing-weave/
 
 # Install CNI Add-on Weave Net
 kubectl apply -f https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-wget https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-kubectl apply -f weave-daemonset-k8s.yaml
 
 # Install CNI Add-on Flannel
 kubectl apply -f https://github.com/coreos/flannel/raw/master/Documentation/kube-flannel.yml
@@ -65,45 +62,43 @@ kubectl get pod -n kube-system
 # https://sematext.com/blog/tail-kubernetes-logs/
 
 # Проверить статус кластера
+kubectl get pod -n kube-system
 kubectl cluster-info
+kubectl version --short -o yaml
 kubectl config view
 kubectl get svc
-kubectl get namespace
+kubectl get namespace       # должен быть podSubnet
 kubectl -n kube-system get cm kubeadm-config -o yaml
 kubectl get node -o wide
-kubectl get nodes
-kubectl get pod -n kube-system -o wide
-
-kubectl cluster-info dump
-sudo netstat -pnlt | grep 6443
-# tcp6 0 0 :::6443 :::* LISTEN 4546/kube-apiserver
-
-# Отобразить логи kubelet
-sudo journalctl -u kubelet --no-pager
-journalctl -xeu kubelet
-sudo journalctl -xu kubelet --no-pager
-sudo journalctl -xu kubelet --no-pager -S 2019-12-30 > kubelet.log
 
 # Получит события кластера
 kubectl get events
 
-# https://github.com/weaveworks/weave/issues/3437
-# https://stackoverflow.com/questions/61278005/weave-crashloopbackoff-on-fresh-ha-cluster
+# Удостовериться, что API прослушивается
+sudo netstat -pnlt | grep 6443
+# tcp6 0 0 :::6443 :::* LISTEN 4546/kube-apiserver
 
-# !!! Отобразить логи CRI
+# Отобарзить состояние системных подов
+kubectl get pod -n kube-system -o wide
+
+# Отобразить логи CRI - убедиться что все поды запущены без ошибок
 sudo crictl ps -a
+sudo crictl ps -a -v
 sudo crictl logs
-
 sudo crictl logs <problem-container-ID>
     sudo crictl logs ddb989960587a
 
+# Отобразить логи kubelet
+sudo journalctl -u kubelet --no-pager
+sudo journalctl -xu kubelet --no-pager -S 2019-12-30 > kubelet.log
+
+# Отобразить логи containerd
 sudo containerd version
-kubectl version --short -o yaml
 
 # Получить информацию о поде
 kubectl get pod -n kube-system -o wide
 
-kubectl get pod <pod-name> -n kube-system -o wide
+kubectl get pod <pod-name> -n kube-system [-o wide][-o yaml]
     kubectl get pod weave-net-8gk47 -n kube-system -o wide
     kubectl get pod weave-net-8gk47 -n kube-system -o yaml
 
@@ -113,7 +108,11 @@ kubectl describe pod <pod-name> -n kube-system
 # Получить перечень контейнеров в поде:
 kubectl get pods weave-net-8gk47 -o jsonpath='{.spec.containers[*].name}' -n kube-system
 # or
-kubectl describe pod <pod-name> -n kube-system | grep 'Image ID:'
+kubectl describe pod <pod-name> -n kube-system | grep 'Image:'
+
+# Статус контейнера
+kubectl get pod <pod-name> --template '{{.status.initContainerStatuses}}' -n kube-system
+    kubectl get pod weave-net-8gk47 --template '{{.status.initContainerStatuses}}' -n kube-system
 
 # Посмотреть логи пода и контейнеров в нем
 kubectl logs -n kube-system <pod-name>
@@ -123,21 +122,10 @@ kubectl logs -n kube-system <pod-name> -c <container-name>
     kubectl logs -n kube-system  weave-net-8gk47 -c weave-npc
     kubectl logs -n kube-system  weave-net-8gk47 -c weave-kube
 
-kubectl logs -n kube-system <pod-name> -c <container-name> --previous=true
+kubectl logs -n kube-system <pod-name> -c <container-name> --previous=true [-p]
     kubectl logs -n kube-system weave-net-8gk47 -c weave-npc --previous=true
     kubectl logs -n kube-system weave-net-8gk47 -c weave-kube -p
     kubectl logs -n kube-system weave-net-8gk47 -c weave-init -p
-# Статус контейнера
-kubectl get pod <pod-name> --template '{{.status.initContainerStatuses}}' -n kube-system
-    kubectl get pod weave-net-8gk47 --template '{{.status.initContainerStatuses}}' -n kube-system
-
-# Логи контейренов
-kubectl describe pod <pod-name>
-    kubectl describe pod -n kube-system weave-net-8gk47
-
-kubectl logs <pod-name> -c <init-container-2>
-    kubectl logs weave-net-8gk47 -n kube-system --all-containers=true
-    kubectl logs weave-net-8gk47 -n kube-system -c weave-npc
 
 # To access one of the containers in the pod, enter the following command
 kubectl exec -it pod_name -c container_name bash

@@ -11,6 +11,7 @@
       - lsb-release
       - apt-transport-https
       # - net-tools
+    control_plane_ip: '10.0.1.9'
 
   tasks:
     - name: Play to set time
