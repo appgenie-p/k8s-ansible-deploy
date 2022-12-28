@@ -15,18 +15,13 @@ apb playbooks/k8s-install.yaml --start-at-task 'Generate default file content' \
 
 # Установка кластера - рабочий гид:
     # v1.26
-    # https://www.weave.works/docs/net/latest/kubernetes/kube-addon/
+    # https://blog.kubesimplify.com/kubernetes-126
 
 cat /etc/containerd/config.toml | grep SystemdCgroup
 sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' \
     /etc/containerd/config.toml
 
 # Установка кластера
-sudo kubeadm init --apiserver-advertise-address=10.0.1.9 \
-    --pod-network-cidr=10.244.0.0/16 --upload-certs --kubernetes-version=v1.26.0 \
-    --control-plane-endpoint=10.0.1.9 \
-    --cri-socket unix:///run/containerd/containerd.sock
-
 sudo kubeadm init --apiserver-advertise-address=10.0.1.9 \
     --pod-network-cidr=10.32.0.0/12 --upload-certs --kubernetes-version=v1.26.0 \
     --control-plane-endpoint=10.0.1.9 \
