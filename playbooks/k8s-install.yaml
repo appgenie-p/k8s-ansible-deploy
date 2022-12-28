@@ -178,6 +178,9 @@
       block:
         - name: Create cluster kubeadm init
           become: true
+          # Обязательные только эти параметры:
+          # --apiserver-advertise-address=10.0.1.9
+          # --pod-network-cidr=10.32.0.0/12
           ansible.builtin.shell: >-
             sudo kubeadm init --apiserver-advertise-address=10.0.1.9
             --pod-network-cidr=10.32.0.0/12

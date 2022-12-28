@@ -11,7 +11,8 @@
         - name: Create cluster kubeadm init
           become: true
           ansible.builtin.shell: >-
-            sudo kubeadm init --apiserver-advertise-address=10.0.1.9
+            sudo kubeadm init
+            --apiserver-advertise-address=10.0.1.9
             --pod-network-cidr=10.32.0.0/12
             >> cluster-init-output.txt
           args:
