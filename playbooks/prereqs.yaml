@@ -1,0 +1,166 @@
+---
+- name: Playbook for k8s install prerequisites
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    packages_for_install:
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+      - apt-transport-https
+      - net-tools
+
+  tasks:
+    - name: Set timezone
+      community.general.timezone:
+        name: Europe/Moscow
+      register: timeset_result
+
+    - name: Restart cron service
+      ansible.builtin.service:
+        name: cron
+        state: restarted
+      when: timeset_result.changed
+
+    - name: Remove swapfile
+      ansible.posix.mount:
+        path: swap
+        fstype: swap
+        state: absent
+        backup: true
+
+    - name: Create enties in hosts
+      ansible.builtin.blockinfile:
+        state: present
+        path: /etc/hosts
+        block: |
+          10.0.1.9  master
+          10.0.1.10 node-10
+          10.0.1.11 node-11
+
+    - name: Prerequisite /etc/modules-load.d/containerd.conf
+      ansible.builtin.blockinfile:
+        path: /etc/modules-load.d/k8s.conf
+        mode: '644'
+        create: true
+        state: present
+        block: |
+          overlay
+          br_netfilter
+
+    - name: Prerequisite load kernel modules
+      community.general.modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+
+    - name: Prerequisite /etc/sysctl.d/kubernetes-cri.conf
+      ansible.builtin.blockinfile:
+        path: /etc/sysctl.d/k8s.conf
+        mode: '644'
+        create: true
+        state: present
+        block: |
+          net.bridge.bridge-nf-call-iptables = 1
+          net.bridge.bridge-nf-call-ip6tables = 1
+          net.ipv4.ip_forward = 1
+
+    # Define kernel variables and set in runtime
+    - name: Prerequisite sysctl conf load
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: true
+      with_dict:
+        net.bridge.bridge-nf-call-iptables: 1
+        net.bridge.bridge-nf-call-ip6tables: 1
+        net.ipv4.ip_forward: 1
+
+    - name: Install prerequisites packages
+      ansible.builtin.apt:
+        update_cache: true
+        name: "{{ packages_for_install }}"
+
+    - name: Play to install kubelet, kubeadm and kubectl
+      block:
+        - name: Add Google Cloud public signing key
+          ansible.builtin.apt_key:
+            url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+            state: present
+
+        - name: Add the Kubernetes apt repository
+          ansible.builtin.apt_repository:
+            repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
+            state: present
+
+        - name: Install kubelet, kubeadm and kubectl
+          ansible.builtin.apt:
+            name:
+              - kubelet=1.26.0-00
+              - kubeadm=1.26.0-00
+              - kubectl=1.26.0-00
+            update_cache: true
+            state: present
+
+        - name: Prevent packages from being upgraded
+          ansible.builtin.dpkg_selections:
+            name: "{{ item }}"
+            selection: hold
+          loop:
+            - kubelet
+            - kubeadm
+            - kubectl
+
+    - name: Add Docker GPG apt Key
+      ansible.builtin.apt_key:
+        url: "https://download.docker.com/linux/{{ ansible_distribution | lower }}/gpg"
+        state: present
+
+    - name: Add docker repository to apt
+      ansible.builtin.apt_repository:
+        repo: >
+          deb https://download.docker.com/linux/{{ ansible_distribution | lower }}
+          {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install containerd.io
+      ansible.builtin.apt:
+        update_cache: true
+        name: containerd.io
+        state: present
+
+    - name: Create directory for kubectl config
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: '755'
+
+    - name: Create containerd config
+      ansible.builtin.shell: |
+          containerd config default > /etc/containerd/config.toml
+      register: my_output
+      changed_when: my_output.rc == 0
+
+    - name: Configure containerd so that it starts using systemd as cgroup
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: 'SystemdCgroup = false'
+        line: SystemdCgroup = true
+
+    - name: Restart containerd service
+      ansible.builtin.service:
+        name: containerd
+        state: restarted
+
+    - name: Pulls the images for Kubernetes 1.26 version
+      ansible.builtin.shell: >-
+        sudo kubeadm config images pull --image-repository=registry.k8s.io
+        --cri-socket unix:///run/containerd/containerd.sock
+        --kubernetes-version v1.26.0 >> k8s-images-download-output.txt
+      args:
+        chdir: $HOME
+        creates: k8s-images-download-output.txt

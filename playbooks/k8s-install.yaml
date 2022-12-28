@@ -10,7 +10,7 @@
       - gnupg
       - lsb-release
       - apt-transport-https
-      - net-tools
+      # - net-tools
 
   tasks:
     - name: Play to set time
@@ -28,8 +28,6 @@
 
     - name: Play to fill k8s cluster CRI prerequisites
       block:
-      # !!! Не выполнил требования для перехода на systemd в качестве менеджера
-      # cgroup - для последующей проработки !!!
         - name: Remove swapfile
           ansible.posix.mount:
             path: swap
@@ -39,7 +37,6 @@
 
         - name: Create enties in hosts
           ansible.builtin.blockinfile:
-            # backup: true
             state: present
             path: /etc/hosts
             block: |
@@ -65,7 +62,6 @@
             - overlay
             - br_netfilter
 
-        # Define kernel variables
         - name: Prerequisite /etc/sysctl.d/k8s.conf
           ansible.builtin.blockinfile:
             path: /etc/sysctl.d/k8s.conf
@@ -73,9 +69,10 @@
             create: true
             state: present
             block: |
-              net.bridge.bridge-nf-call-iptables=1
-              net.bridge.bridge-nf-call-ip6tables=1
-              net.ipv4.ip_forward=1
+              net.bridge.bridge-nf-call-iptables = 1
+              net.bridge.bridge-nf-call-ip6tables = 1
+              net.ipv4.ip_forward = 1
+
         # Define kernel variables and set in runtime
         - name: Prerequisite sysctl conf load
           ansible.posix.sysctl:
@@ -109,7 +106,8 @@
         - name: Install containerd.io
           ansible.builtin.apt:
             update_cache: true
-            name: containerd.io
+            name: containerd.io=1.6.14-1
+            # name: containerd.io=1.6.12-1
             state: present
 
         - name: Create directory for kubectl config
@@ -150,9 +148,9 @@
         - name: Install kubelet, kubeadm and kubectl
           ansible.builtin.apt:
             name:
-              - kubelet
-              - kubeadm
-              - kubectl
+              - kubelet=1.26.0-00
+              - kubeadm=1.26.0-00
+              - kubectl=1.26.0-00
             update_cache: true
             state: present
 
@@ -165,17 +163,31 @@
             - kubeadm
             - kubectl
 
+        - name: Pulls the images for Kubernetes
+          ansible.builtin.shell: >-
+            sudo kubeadm config images pull --image-repository=registry.k8s.io
+            --cri-socket unix:///run/containerd/containerd.sock
+            >> k8s-images-download-output.txt
+          args:
+            chdir: $HOME
+            creates: k8s-images-download-output.txt
+
     - name: Play to create cluster with kubeadm on control nodes
       when: inventory_hostname in groups['master_nodes']
       become: false
       block:
         - name: Create cluster kubeadm init
           become: true
-          ansible.builtin.command:
-            # use second NOT default network interface. Default is bridge.
-            cmd: kubeadm init --apiserver-advertise-address=10.0.1.9
-          register: output
-          changed_when: output.rc == 0
+          ansible.builtin.shell: >-
+            sudo kubeadm init --apiserver-advertise-address=10.0.1.9
+            --pod-network-cidr=10.32.0.0/12
+            --control-plane-endpoint=10.0.1.9
+            --upload-certs
+            --cri-socket unix:///run/containerd/containerd.sock
+            >> cluster-init-output.txt
+          args:
+            chdir: $HOME
+            creates: cluster-init-output.txt
 
         - name: Create directory for kubectl config
           ansible.builtin.file:
@@ -185,22 +197,21 @@
 
         - name: Configure kubectl interract with cluster
           ansible.builtin.shell: |
-            sudo cp -n /etc/kubernetes/admin.conf $HOME/.kube/config
+            sudo cp -n /etc/kubernetes/admin.conf $HOME/.kube/config \
+            >> kube-config-for-kubectl.txt
             sudo chown $(id -u):$(id -g) $HOME/.kube/config
-          when: inventory_hostname in groups['master_nodes']
-          register: output
-          changed_when: output.rc == 0
-
-        - name: Download weave-daemonset-k8s.yaml
-          ansible.builtin.get_url:
-            url: https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
-            dest: /home/vagrant/weave-daemonset-k8s.yaml
-            mode: '664'
+          args:
+            chdir: $HOME
+            creates: kube-config-for-kubectl.txt
 
         - name: Install Weave CNI Add-on
-          ansible.builtin.command: kubectl apply -f /home/vagrant/weave-daemonset-k8s.yaml
-          register: output
-          changed_when: output.rc == 0
+          ansible.builtin.shell: >-
+            kubectl apply -f
+            https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+            >> weave-cni-cinfig.txt
+          args:
+            chdir: $HOME
+            creates: weave-cni-cinfig.txt
 
         - name: Save token to join cluster
           ansible.builtin.command: kubeadm token create --print-join-command

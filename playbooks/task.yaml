@@ -1,0 +1,57 @@
+---
+- name: Playbook for k8s install prerequisites
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Play to create cluster with kubeadm on control nodes
+      when: inventory_hostname in groups['master_nodes']
+      become: false
+      block:
+        - name: Create cluster kubeadm init
+          become: true
+          ansible.builtin.shell: >-
+            sudo kubeadm init --apiserver-advertise-address=10.0.1.9
+            --pod-network-cidr=10.32.0.0/12
+            >> cluster-init-output.txt
+          args:
+            chdir: $HOME
+            creates: cluster-init-output.txt
+            # --control-plane-endpoint=10.0.1.9
+            # --upload-certs
+            # --cri-socket unix:///run/containerd/containerd.sock
+
+        - name: Create directory for kubectl config
+          ansible.builtin.file:
+            path: $HOME/.kube
+            state: directory
+            mode: '775'
+
+        - name: Configure kubectl interract with cluster
+          ansible.builtin.shell: |
+            sudo cp -n /etc/kubernetes/admin.conf $HOME/.kube/config \
+            >> kube-config-for-kubectl.txt
+            sudo chown $(id -u):$(id -g) $HOME/.kube/config
+          args:
+            chdir: $HOME
+            creates: kube-config-for-kubectl.txt
+
+        - name: Install Weave CNI Add-on
+          ansible.builtin.shell: >-
+            kubectl apply -f
+            https://github.com/weaveworks/weave/releases/download/v2.8.1/weave-daemonset-k8s.yaml
+            >> weave-cni-cinfig.txt
+          args:
+            chdir: $HOME
+            creates: weave-cni-cinfig.txt
+
+        - name: Save token to join cluster
+          ansible.builtin.command: kubeadm token create --print-join-command
+          register: token
+          changed_when: token.rc != 0
+
+    - name: Join nodes to cluster
+      when: inventory_hostname in groups['worker_nodes']
+      ansible.builtin.command: "{{ hostvars.master.token.stdout }}"
+      register: output
+      changed_when: output.rc == 0

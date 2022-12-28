@@ -1,6 +1,10 @@
 # https://medium.com/linuxstories/vagrant-create-a-multi-machine-environment-b90738383a7e
+# vagrant plugin install vagrant-hostmanager
+# vagrant hostmanager
 
 Vagrant.configure("2") do |config|
+  config.ssh.insert_key = true
+
   config.vm.box_check_update = false
   # config.vm.provision :ansible do |ansible|
   #   ansible.playbook = "playbooks/remote-software.yaml"
@@ -10,7 +14,6 @@ Vagrant.configure("2") do |config|
     # master.vm.box = "ubuntu/jammy64"
     master.vm.box = "ubuntu/focal64"
     master.vm.hostname = "master"
-    master.ssh.insert_key = true
     # master.vm.network "public_network",
     master.vm.network "private_network",
       # use_dhcp_assigned_default_route: true,
@@ -38,7 +41,6 @@ Vagrant.configure("2") do |config|
       node.vm.box = "ubuntu/focal64"      
       node.vm.box_check_update = false
       node.vm.hostname = "node-#{i}"
-      node.ssh.insert_key = true
       # node.vm.network "public_network",
       node.vm.network "private_network",
         # use_dhcp_assigned_default_route: true,
