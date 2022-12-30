@@ -23,9 +23,9 @@ sudo sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' \
 
 # Установка кластера
 sudo kubeadm init --apiserver-advertise-address=10.0.1.9 \
-    --pod-network-cidr=10.32.0.0/12 --upload-certs --kubernetes-version=v1.26.0 \
-    --control-plane-endpoint=10.0.1.9 \
-    --cri-socket unix:///run/containerd/containerd.sock
+    --pod-network-cidr=10.32.0.0/12 --kubernetes-version=v1.26.0 \
+    --cri-socket unix:///run/containerd/containerd.sock \
+    --upload-certs
 
 sudo export KUBECONFIG=/etc/kubernetes/admin.conf
 
@@ -101,15 +101,17 @@ kubectl describe pod <pod-name> -n kube-system
     kubectl describe pod weave-net-8gk47 -n kube-system
 
 # Получить перечень контейнеров в поде:
-kubectl get pods weave-net-8gk47 -o jsonpath='{.spec.containers[*].name}' -n kube-system
+kubectl get pods <pod-name> -o jsonpath='{.spec.containers[*].name}' -n kube-system
 # or
-kubectl describe pod <pod-name> -n kube-system | grep 'Image:'
+kubectl describe pod -n kube-system <pod-name> | grep 'Image:'
 
 # Статус контейнера
 kubectl get pod <pod-name> --template '{{.status.initContainerStatuses}}' -n kube-system
     kubectl get pod weave-net-8gk47 --template '{{.status.initContainerStatuses}}' -n kube-system
 
 # Посмотреть логи пода и контейнеров в нем
+kubectl logs pod-name [--since=2h] [--tail=10]
+
 kubectl logs -n kube-system <pod-name>
     kubectl logs -n kube-system  weave-net-8gk47  
 
@@ -129,7 +131,8 @@ kubectl exec -n kube-system weave-net-8gk47 -c weave -- /home/weave/weave --loca
 # #########################################
 
 # Проверка работоспособности
-kubectl run nginx --image=nginx
+kubectl run test1 --image=nginx
+kubectl run test2 --image=nginx
 kubectl expose pod nginx --type=NodePort --port 80
 kubectl get pods
 kubectl get svc nginx
@@ -138,3 +141,12 @@ kubectl get svc nginx
 sudo kubeadm reset -f &&
 rm $HOME/.kube/config &&
 sudo rm /etc/cni/net.d
+
+sudo kubeadm config images pull --image-repository=registry.k8s.io \
+    --cri-socket unix:///run/containerd/containerd.sock
+
+k create deployment my-deployment --image=nginx:1.20 --port=80 \
+    --replicas=3 --dry-run=client --output=yaml > my-deployment.yaml
+
+curl 10.108.123.23:8080
+curl nginx-service:8080

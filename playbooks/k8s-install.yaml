@@ -10,6 +10,8 @@
       - gnupg
       - lsb-release
       - apt-transport-https
+      - curl
+      - iputils-ping
     control_plane_ip: 10.0.1.9
     pod_network_cidr: 10.32.0.0/12
     hosts_file_ips: |
@@ -167,6 +169,7 @@
             - kubectl
 
         - name: Pulls the images for Kubernetes
+          # --kubernetes-version latest
           ansible.builtin.shell: >-
             sudo kubeadm config images pull --image-repository=registry.k8s.io
             --cri-socket unix:///run/containerd/containerd.sock

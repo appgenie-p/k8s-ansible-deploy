@@ -1,14 +1,13 @@
 ---
 - name: Playbook for k8s install prerequisites
-  hosts: all
+  hosts: master
   become: true
   gather_facts: false
   vars:
     containerd_version: "1.6.14-1"
   tasks:
-    - name: Install containerd.io
-      ansible.builtin.apt:
-        update_cache: true
-        # name: containerd.io=1.6.14-1
-        name: containerd.io={{ containerd_version }}
-        state: present
+    - name: Pull an image
+      community.docker.docker_image:
+        name: pacur/centos-7
+        source: pull
+

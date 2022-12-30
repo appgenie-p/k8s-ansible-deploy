@@ -1,0 +1,53 @@
+- name: Playbook for changing local mac settings
+  hosts: all
+  become: false
+  gather_facts: false
+  tasks:
+    - name: Create aliases in .bashrc
+      ansible.builtin.blockinfile:
+        path: ~/.bashrc
+        block: |
+          stty -ixon
+          source <(kubectl completion bash)
+          alias k="kubectl"
+          complete -o default -F __start_kubectl k
+
+          alias h='history'
+          alias ll='ls -laG'
+
+          alias ka="kubectl apply -f"
+          alias kl-s="kubectl logs -n kube-system"
+          alias kd="kubectl describe"
+          alias kdp="kubectl describe pod"
+          alias kdd="kubectl describe deployment"
+          alias kds="kubectl describe svc"
+          alias kdl="kubectl delete"
+          alias kdlp="kubectl delete pod"
+          alias kd-s="kubectl describe -n kube-system"
+          alias kdp-s="kubectl describe -n kube-system pod"
+          alias keit="kubectl exec -it"
+          alias kg="kubectl get"
+          alias kga="kubectl get all"
+          alias kge="kubectl get endpoints"
+          alias kgn="kubectl get node"
+          alias kgp="kubectl get pod"
+          alias kgp-l="kubectl get pod --show-labels"
+          alias kgp-s="kubectl get pod -n kube-system"
+          alias kgp-sw="kubectl get pod -n kube-system -o wide"
+          alias kg-y="kubectl get -o yaml"
+          alias kgs="kubectl get service"
+          alias kgs-s="kubectl get service -n kube-system"
+          alias kgd="kubectl get deployment"
+          alias kgp-a="kubectl get pod -A"
+          alias kgp-w="kubectl get pod -o wide"
+          alias kgp-aw="kubectl get pod -A -o wide"
+          alias krh="kubectl rollout history"
+
+    - name: Create aliases in .bashrc
+      ansible.builtin.blockinfile:
+        path: /etc/vim/vimrc
+        # for Ubuntu
+        block: |
+          unlet! skip_defaults_vim
+          source $VIMRUNTIME/defaults.vim
+          set number

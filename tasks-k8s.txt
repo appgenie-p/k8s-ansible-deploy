@@ -23,7 +23,6 @@ V Попробовать на другой ОС.
 V Вычислить гнилушку.
 V Проставить версии для исполняемых файлов.
 V Сохраниться.
-Попробовать сделать все вручную с самого начала по мануалам.
-    https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
-Прочитать статью:
-    https://www.howtogeek.com/devops/how-to-view-kubernetes-pod-logs-with-kubectl/
+V Прочитать статью по логам.
+Настроить балансировщик для доступа к k8s LoadBalancer ресурсу.
+    Посмотреть курс по nginx.
