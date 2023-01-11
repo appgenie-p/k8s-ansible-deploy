@@ -1,0 +1,17 @@
+---
+- name: Playbook for k8s install prerequisites
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    hosts_file_ips: |
+      10.0.1.9  master lb.local
+      10.0.1.10 node-10 lb.local
+      10.0.1.11 node-11 lb.local
+
+  tasks:
+    - name: Create enties in hosts
+      ansible.builtin.blockinfile:
+        state: present
+        path: /etc/hosts
+        block: "{{ hosts_file_ips }}"

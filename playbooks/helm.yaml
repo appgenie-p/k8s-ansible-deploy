@@ -21,12 +21,3 @@
         chdir: $HOME
         creates: helm-installation-log.txt
 
-    - name: Install Nginx Ingress controller
-      become: false
-      ansible.builtin.command: >-
-        helm upgrade --install ingress-nginx ingress-nginx
-        --repo https://kubernetes.github.io/ingress-nginx
-        --namespace ingress-nginx --create-namespace
-      args:
-        chdir: $HOME
-        creates: helm-installation-log.txt

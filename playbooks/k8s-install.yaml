@@ -12,12 +12,13 @@
       - apt-transport-https
       - curl
       - iputils-ping
+      - net-tools
     control_plane_ip: 10.0.1.9
     pod_network_cidr: 10.32.0.0/12
     hosts_file_ips: |
-      10.0.1.9  master
-      10.0.1.10 node-10
-      10.0.1.11 node-11
+      10.0.1.9  master lb.local
+      10.0.1.10 node-10 lb.local
+      10.0.1.11 node-11 lb.local
     containerd_version: 1.6.14-1
     kube_version: 1.26.0-00
 
