@@ -1,0 +1,30 @@
+---
+- name: Install additional tools
+  hosts: all
+  become: true
+  gather_facts: true
+  vars:
+    packages_for_install:
+      - iputils-ping
+      - net-tools
+      - bat
+
+  tasks:
+    - name: Install prerequisites packages
+      ansible.builtin.apt:
+        update_cache: true
+        name: "{{ packages_for_install }}"
+
+    - name: Create directory for bat lounch without collisions
+      become: false
+      ansible.builtin.file:
+        path: $HOME/.local/bin
+        state: directory
+        mode: '775'
+
+    - name: Create a symbolic link
+      become: false
+      ansible.builtin.file:
+        src: /usr/bin/batcat
+        dest: $HOME/.local/bin/bat
+        state: link
