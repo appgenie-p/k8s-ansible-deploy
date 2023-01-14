@@ -3,13 +3,13 @@
   become: false
   gather_facts: false
   tasks:
-    - name: Create aliases in .bashrc
+    - name: Bash auto-complete for k8s
       ansible.builtin.blockinfile:
         path: ~/.bashrc
         block: |
           stty -ixon
-          source <(kubectl completion bash)
           alias k="kubectl"
+          source <(kubectl completion bash)
           complete -o default -F __start_kubectl k
 
           alias h='history'
@@ -43,7 +43,7 @@
           alias kgp-aw="kubectl get pod -A -o wide"
           alias krh="kubectl rollout history"
 
-    - name: Create aliases in .bashrc
+    - name: Settings for Vim
       ansible.builtin.blockinfile:
         path: /etc/vim/vimrc
         # for Ubuntu

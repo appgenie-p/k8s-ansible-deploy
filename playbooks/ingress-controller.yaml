@@ -17,6 +17,7 @@
         block: "{{ hosts_file_ips }}"
 
     - name: Install Ingress controller
+      # https://kubernetes.github.io/ingress-nginx/deploy/baremetal/
       become: false
       when: inventory_hostname == 'master'
       ansible.builtin.command: >-

@@ -116,7 +116,7 @@
             name: containerd.io={{ containerd_version }}
             state: present
 
-        - name: Create directory for kubectl config
+        - name: Create directory containerd config
           ansible.builtin.file:
             path: /etc/containerd
             state: directory
