@@ -29,6 +29,19 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  config.vm.define "storage" do |sg|
+    check_guest_additions = false
+    sg.vm.box = "ubuntu/focal64"
+    sg.vm.hostname = "storage"
+    sg.vm.network "private_network",
+      ip: "10.0.1.8"
+    sg.vm.provider "virtualbox" do |vb|
+      vb.linked_clone = true
+      vb.name = "storage"
+      vb.memory = "1024"
+      vb.cpus = 1
+    end
+  end
   # config.vm.provision "ansible" do |ansible|
   #   ansible.playbook = "playbooks/k8s-install.yaml"
   # end

@@ -9,7 +9,7 @@ ssh aen@c1-storage
 #More details available here: https://help.ubuntu.com/lts/serverguide/network-file-system.html
 #Install NFS Server and create the directory for our exports
 sudo apt install nfs-kernel-server
-sudo mkdir /export/volumes
+sudo mkdir /export/volumes -p
 sudo mkdir /export/volumes/pod
 
 
@@ -27,7 +27,8 @@ sudo apt install nfs-common -y
 
 #On one of the Nodes, test out basic NFS access before moving on.
 ssh aen@c1-node1
-sudo mount -t nfs4 c1-storage:/export/volumes /mnt/
+# sudo mount -t nfs4 c1-storage:/export/volumes /mnt/
+sudo mount -t nfs4 storage:/export/volumes /mnt/
 mount | grep nfs
 sudo umount /mnt
 exit
