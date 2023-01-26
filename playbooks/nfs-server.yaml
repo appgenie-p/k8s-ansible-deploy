@@ -1,0 +1,44 @@
+---
+- name: Playbook for storage server and it's clients configure.
+  hosts: all
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Install nfs server on Ubuntu 20.04
+      when: inventory_hostname in groups['storage_nodes']
+      block:
+        - name: Install nfs server service.
+          ansible.builtin.apt:
+            name: nfs-kernel-server
+            state: present
+
+        - name: Create a directory for nfs share
+          ansible.builtin.file:
+            path: /export/volumes
+            state: directory
+            mode: 0755 # rwxr-xr-x
+
+        - name: Configure nfs share.
+          ansible.builtin.lineinfile:
+            path: /etc/exports
+            line: /export/volumes  *(rw,no_root_squash,no_subtree_check)
+            state: present
+            create: true
+            mode: 0644 # rw-r--r--
+
+        - name: Restart nfs server
+          ansible.builtin.service:
+            name: nfs-kernel-server
+            state: restarted
+
+    - name: Install nfs client.
+      when: inventory_hostname in groups['worker_nodes']
+      block:
+        - name: Install nfs client service.
+          ansible.builtin.apt:
+            name: nfs-common
+            state: present
+      # #On one of the Nodes, test basic NFS access before.
+      # sudo mount -t nfs4 storage:/export/volumes /mnt/
+      # mount | grep nfs
+      # sudo umount /mnt
