@@ -151,7 +151,7 @@ k create deployment my-deployment --image=nginx:1.20 --port=80 \
 curl 10.108.123.23:8080
 curl nginx-service:8080
 
-kubectl create deployment web --image=gcr.io/google-samples/hello-app:1.0
+kubectl create deployment web --image=hello-world:latest
 kubectl expose deployment web --type=NodePort --port=8080
 kubectl get service web
 minikube service web --url

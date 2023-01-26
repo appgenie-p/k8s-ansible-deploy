@@ -19,7 +19,7 @@ spec:
         app: hello-world
     spec:
       containers:
-      - image: gcr.io/google-samples/hello-app:1.0
-        name: hello-app
-        resources: {}
+        - image: hello-world:latest
+          name: hello-app
+          resources: {}
 status: {}
