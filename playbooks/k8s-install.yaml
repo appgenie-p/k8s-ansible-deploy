@@ -16,6 +16,7 @@
     control_plane_ip: 10.0.1.9
     pod_network_cidr: 10.32.0.0/12
     hosts_file_ips: |
+      10.0.1.8  storage lb.local
       10.0.1.9  master lb.local
       10.0.1.10 node-10 lb.local
       10.0.1.11 node-11 lb.local
