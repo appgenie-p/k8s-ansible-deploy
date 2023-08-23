@@ -1,0 +1,13 @@
+- name: My first play
+  hosts: all
+  tasks:
+    - name: Set git username
+      community.general.git_config:
+        name: user.name
+        value: "...your name..."
+      become: true
+    - name: Set git username email
+      community.general.git_config:
+        name: user.email
+        value: "...your email..."
+      become: true
